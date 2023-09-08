@@ -36,6 +36,9 @@ class CustomDateRangePicker extends StatefulWidget {
   /// The primary color used for the date range picker.
   final Color primaryColor;
 
+  /// The text color to be used in the calendar's color scheme
+  final Color? textColor;
+
   /// The background color used for the date range picker.
   final Color backgroundColor;
 
@@ -43,7 +46,14 @@ class CustomDateRangePicker extends StatefulWidget {
   final Function(DateTime, DateTime) onApplyClick;
 
   /// A callback function that is called when the user cancels the selection of the date range.
-  final Function() onCancelClick;
+  final Function()? onCancelClick;
+
+  final String fromText;
+  final String toText;
+  final String applyText;
+  final String cancelText;
+
+  final double borderRadius;
 
   const CustomDateRangePicker({
     Key? key,
@@ -55,7 +65,13 @@ class CustomDateRangePicker extends StatefulWidget {
     this.barrierDismissible = true,
     required this.minimumDate,
     required this.maximumDate,
-    required this.onCancelClick,
+    this.onCancelClick,
+    this.textColor,
+    this.fromText = "From",
+    this.toText = "To",
+    this.applyText = "Apply",
+    this.cancelText = "Cancel",
+    this.borderRadius = 24,
   }) : super(key: key);
 
   @override
@@ -86,6 +102,190 @@ class CustomDateRangePickerState extends State<CustomDateRangePicker>
     super.dispose();
   }
 
+  //
+  // UI
+  //
+
+  Widget _buildDatePickerContent() {
+    return InkWell(
+      borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius)),
+      onTap: () {},
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      widget.fromText,
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      startDate != null
+                          ? DateFormat('EEE, dd MMM').format(startDate!)
+                          : '--/-- ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                height: 74,
+                width: 1,
+                color: Theme.of(context).dividerColor,
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      widget.toText,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      endDate != null
+                          ? DateFormat('EEE, dd MMM').format(endDate!)
+                          : '--/-- ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+          const Divider(height: 1),
+          CustomCalendar(
+            minimumDate: widget.minimumDate,
+            maximumDate: widget.maximumDate,
+            initialEndDate: widget.initialEndDate,
+            initialStartDate: widget.initialStartDate,
+            primaryColor: widget.primaryColor,
+            startEndDateChange: (DateTime startDateData, DateTime endDateData) {
+              setState(() {
+                startDate = startDateData;
+                endDate = endDateData;
+              });
+            },
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 48,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(widget.borderRadius)),
+                    ),
+                    child: OutlinedButton(
+                      style: ButtonStyle(
+                        side: MaterialStateProperty.all(
+                            BorderSide(color: widget.primaryColor)),
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(widget.borderRadius)),
+                          ),
+                        ),
+                        backgroundColor:
+                            MaterialStateProperty.all(widget.primaryColor),
+                      ),
+                      onPressed: () {
+                        try {
+                          if (widget.onCancelClick != null) {
+                            widget.onCancelClick!();
+                          }
+                          Navigator.pop(context);
+                        } catch (_) {}
+                      },
+                      child: Center(
+                        child: Text(
+                          widget.cancelText,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Container(
+                    height: 48,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(24.0)),
+                    ),
+                    child: OutlinedButton(
+                      style: ButtonStyle(
+                        side: MaterialStateProperty.all(
+                            BorderSide(color: widget.primaryColor)),
+                        shape: MaterialStateProperty.all(
+                          const RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(24.0)),
+                          ),
+                        ),
+                        backgroundColor:
+                            MaterialStateProperty.all(widget.primaryColor),
+                      ),
+                      onPressed: () {
+                        try {
+                          widget.onApplyClick(startDate!, endDate!);
+                          Navigator.pop(context);
+                        } catch (_) {}
+                      },
+                      child: Center(
+                        child: Text(
+                          widget.applyText,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -105,6 +305,8 @@ class CustomDateRangePickerState extends State<CustomDateRangePicker>
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Container(
+                constraints:
+                    const BoxConstraints(maxHeight: 600, maxWidth: 350),
                 decoration: BoxDecoration(
                   color: widget.backgroundColor,
                   borderRadius: const BorderRadius.all(Radius.circular(24.0)),
@@ -115,191 +317,7 @@ class CustomDateRangePickerState extends State<CustomDateRangePicker>
                         blurRadius: 8.0),
                   ],
                 ),
-                child: InkWell(
-                  borderRadius: const BorderRadius.all(Radius.circular(24.0)),
-                  onTap: () {},
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Row(
-                        children: <Widget>[
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                Text(
-                                  'From',
-                                  textAlign: TextAlign.left,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 16,
-                                    color: Colors.grey.shade700,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 4,
-                                ),
-                                Text(
-                                  startDate != null
-                                      ? DateFormat('EEE, dd MMM')
-                                          .format(startDate!)
-                                      : '--/-- ',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.grey.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            height: 74,
-                            width: 1,
-                            color: Theme.of(context).dividerColor,
-                          ),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                Text(
-                                  'To',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 16,
-                                    color: Colors.grey.shade700,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 4,
-                                ),
-                                Text(
-                                  endDate != null
-                                      ? DateFormat('EEE, dd MMM')
-                                          .format(endDate!)
-                                      : '--/-- ',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.grey.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                      const Divider(
-                        height: 1,
-                      ),
-                      CustomCalendar(
-                        minimumDate: widget.minimumDate,
-                        maximumDate: widget.maximumDate,
-                        initialEndDate: widget.initialEndDate,
-                        initialStartDate: widget.initialStartDate,
-                        primaryColor: widget.primaryColor,
-                        startEndDateChange:
-                            (DateTime startDateData, DateTime endDateData) {
-                          setState(() {
-                            startDate = startDateData;
-                            endDate = endDateData;
-                          });
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 16, right: 16, bottom: 16, top: 8),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                height: 48,
-                                decoration: const BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(24.0)),
-                                ),
-                                child: OutlinedButton(
-                                  style: ButtonStyle(
-                                    side: MaterialStateProperty.all(
-                                        BorderSide(color: widget.primaryColor)),
-                                    shape: MaterialStateProperty.all(
-                                      const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(24.0)),
-                                      ),
-                                    ),
-                                    backgroundColor: MaterialStateProperty.all(
-                                        widget.primaryColor),
-                                  ),
-                                  onPressed: () {
-                                    try {
-                                      widget.onCancelClick();
-                                      Navigator.pop(context);
-                                    } catch (_) {}
-                                  },
-                                  child: const Center(
-                                    child: Text(
-                                      'Cancel',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 18,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Container(
-                                height: 48,
-                                decoration: const BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(24.0)),
-                                ),
-                                child: OutlinedButton(
-                                  style: ButtonStyle(
-                                    side: MaterialStateProperty.all(
-                                        BorderSide(color: widget.primaryColor)),
-                                    shape: MaterialStateProperty.all(
-                                      const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(24.0)),
-                                      ),
-                                    ),
-                                    backgroundColor: MaterialStateProperty.all(
-                                        widget.primaryColor),
-                                  ),
-                                  onPressed: () {
-                                    try {
-                                      widget.onApplyClick(startDate!, endDate!);
-                                      Navigator.pop(context);
-                                    } catch (_) {}
-                                  },
-                                  child: const Center(
-                                    child: Text(
-                                      'Apply',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 18,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
+                child: _buildDatePickerContent(),
               ),
             ),
           ),
