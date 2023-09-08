@@ -348,10 +348,16 @@ void showCustomDateRangePicker(
   DateTime? startDate,
   DateTime? endDate,
   required Function(DateTime startDate, DateTime endDate) onApplyClick,
-  required Function() onCancelClick,
   required Color backgroundColor,
   required Color primaryColor,
   String? fontFamily,
+  Function()? onCancelClick,
+  Color? textColor,
+  String fromText = "From",
+  String toText = "To",
+  String applyText = "Apply",
+  String cancelText = "Cancel",
+  double borderRadius = 24,
 }) {
   /// Request focus to take it away from any input field that might be in focus
   FocusScope.of(context).requestFocus(FocusNode());
@@ -369,6 +375,12 @@ void showCustomDateRangePicker(
       initialEndDate: endDate,
       onApplyClick: onApplyClick,
       onCancelClick: onCancelClick,
+      textColor: textColor,
+      fromText: fromText,
+      toText: toText,
+      applyText: applyText,
+      cancelText: cancelText,
+      borderRadius: borderRadius,
     ),
   );
 }
