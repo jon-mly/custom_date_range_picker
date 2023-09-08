@@ -48,6 +48,8 @@ class CustomDateRangePicker extends StatefulWidget {
   /// A callback function that is called when the user cancels the selection of the date range.
   final Function()? onCancelClick;
 
+  final String locale;
+
   final String fromText;
   final String toText;
   final String applyText;
@@ -71,6 +73,7 @@ class CustomDateRangePicker extends StatefulWidget {
     this.toText = "To",
     this.applyText = "Apply",
     this.cancelText = "Cancel",
+    this.locale = "en",
     this.borderRadius = 24,
   }) : super(key: key);
 
@@ -89,7 +92,9 @@ class CustomDateRangePickerState extends State<CustomDateRangePicker>
   @override
   void initState() {
     animationController = AnimationController(
-        duration: const Duration(milliseconds: 400), vsync: this);
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
     startDate = widget.initialStartDate;
     endDate = widget.initialEndDate;
     animationController?.forward();
@@ -134,7 +139,7 @@ class CustomDateRangePickerState extends State<CustomDateRangePicker>
                     const SizedBox(height: 4),
                     Text(
                       startDate != null
-                          ? DateFormat('EEE, dd MMM').format(startDate!)
+                          ? DateFormat.yMEd(widget.locale).format(startDate!)
                           : '--/-- ',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -166,7 +171,7 @@ class CustomDateRangePickerState extends State<CustomDateRangePicker>
                     const SizedBox(height: 4),
                     Text(
                       endDate != null
-                          ? DateFormat('EEE, dd MMM').format(endDate!)
+                          ? DateFormat.yMEd(widget.locale).format(endDate!)
                           : '--/-- ',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -186,6 +191,8 @@ class CustomDateRangePickerState extends State<CustomDateRangePicker>
             initialEndDate: widget.initialEndDate,
             initialStartDate: widget.initialStartDate,
             primaryColor: widget.primaryColor,
+            textColor: widget.textColor,
+            locale: widget.locale,
             startEndDateChange: (DateTime startDateData, DateTime endDateData) {
               setState(() {
                 startDate = startDateData;
@@ -243,17 +250,18 @@ class CustomDateRangePickerState extends State<CustomDateRangePicker>
                 Expanded(
                   child: Container(
                     height: 48,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(24.0)),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(widget.borderRadius)),
                     ),
                     child: OutlinedButton(
                       style: ButtonStyle(
                         side: MaterialStateProperty.all(
                             BorderSide(color: widget.primaryColor)),
                         shape: MaterialStateProperty.all(
-                          const RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(24.0)),
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(widget.borderRadius)),
                           ),
                         ),
                         backgroundColor:
@@ -309,7 +317,8 @@ class CustomDateRangePickerState extends State<CustomDateRangePicker>
                     const BoxConstraints(maxHeight: 600, maxWidth: 350),
                 decoration: BoxDecoration(
                   color: widget.backgroundColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(24.0)),
+                  borderRadius:
+                      BorderRadius.all(Radius.circular(widget.borderRadius)),
                   boxShadow: <BoxShadow>[
                     BoxShadow(
                         color: Colors.grey.withOpacity(0.2),

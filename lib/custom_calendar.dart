@@ -28,17 +28,24 @@ class CustomCalendar extends StatefulWidget {
   /// The primary color to be used in the calendar's color scheme
   final Color primaryColor;
 
+  /// The text color to be used in the calendar's color scheme
+  final Color? textColor;
+
   /// A function to be called when the selected date range changes
   final Function(DateTime, DateTime)? startEndDateChange;
 
+  final String locale;
+
   const CustomCalendar({
     Key? key,
+    required this.primaryColor,
     this.initialStartDate,
     this.initialEndDate,
     this.startEndDateChange,
     this.minimumDate,
     this.maximumDate,
-    required this.primaryColor,
+    this.locale = "en",
+    this.textColor,
   }) : super(key: key);
 
   @override
@@ -133,7 +140,7 @@ class CustomCalendarState extends State<CustomCalendar> {
               Expanded(
                 child: Center(
                   child: Text(
-                    DateFormat('MMMM, yyyy').format(currentMonthDate),
+                    DateFormat.yMMMM(widget.locale).format(currentMonthDate),
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 20,
@@ -201,9 +208,10 @@ class CustomCalendarState extends State<CustomCalendar> {
             child: Text(
               DateFormat('EEE').format(dateList[i]),
               style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: widget.primaryColor),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: widget.textColor ?? widget.primaryColor,
+              ),
             ),
           ),
         ),
